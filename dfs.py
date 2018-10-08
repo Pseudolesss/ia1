@@ -52,4 +52,6 @@ class PacmanAgent(Agent):
             return {state : dir.STOP}  
         else:
             successors = state.generatePacmanSuccessors()
-            return self.path.update(self.get_path(successors[0][0]))
+            self.path.update({state : successors[0][1]})
+            self.path.update(self.get_path(successors[0][0]))
+            return self.path
