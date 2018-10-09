@@ -26,16 +26,16 @@ class PacmanAgent(Agent):
         -------
         - A legal move as defined in `game.Directions`.
         """
-        self.path.clear()
+        key = ( state.getPacmanPosition(), state.getFood() ) #key for dict
+        self.path.clear() #clear obsolete results
         
-        visited = self.visited.get(state, False)
+        visited = self.visited.get(key, False)
         
         if visited:
-            return visited #add the brand new state and corresponding action to visited
+            return visited[1] #return already compute result
         else:
             path = self.get_path(state)
-            self.visited.update(path)
-            return path.get(state) #value associated to key state 
+            return path.get(key)[1] #value associated to key (position, food) 
     
     def get_path(self, state):
         """
@@ -45,13 +45,23 @@ class PacmanAgent(Agent):
         - `state`: the current game state.
         Return:
         -------
-        - A dictionary with states as keys and directions as values.
-        Each state is part of the DFS path solution.
-        """
+        - A dictionary with pair (Pacman pos, food pos) as keys and coresponding states
+        and directions pairs as values.
+        Each state is part of the DFS path solution starting from state.
+        """        
+        print(state)
+        print( state.isWin())
         if state.isWin():
-            return {state : dir.STOP}  
+            return { ( state.getPacmanPosition(), state.getFood() ) : (state, dir.STOP)}  
         else:
             successors = state.generatePacmanSuccessors()
-            self.path.update({state : successors[0][1]})
-            self.path.update(self.get_path(successors[0][0]))
+            
+            for son in successors:
+                key = (son[0].getPacmanPosition(), son[0].getFood())
+                if not self.visited.get(key, False):
+                    self.visited.update({key : (state, son[1])}) #add the brand new states and corresponding actions to visited
+                    break
+            
+            self.path.update({key : (state, son[1])})
+            self.path.update(self.get_path(son[0]))
             return self.path
