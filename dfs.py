@@ -44,9 +44,8 @@ class PacmanAgent(Agent):
         - `state`: the current game state.
         Return:
         -------
-        - A dictionary with pair (Pacman pos, food pos) as keys and coresponding states
-        and directions pairs as values.
-        Each state is part of the DFS path solution starting from state.
+        - A dictionary with pair (Pacman pos, food pos) as keys and action as value.
+        Each key are from states part of the DFS path solution starting from state.
         """
         visited.append((state.getPacmanPosition(), state.getFood()))
         if state.isWin():
@@ -59,20 +58,14 @@ class PacmanAgent(Agent):
             key = (state.getPacmanPosition(), state.getFood())
             i=0
             for son in successors:
-                """for v in visited:
-                    print(v[0]),
-                print()
-                print(son[0].getPacmanPosition())"""
-                if not (son[0].getPacmanPosition(), son[0].getFood()) in visited: #self.visited.get(key1, False):
-                 #   self.visited.update({key : son[1]}) #add the brand new state and corresponding action to self.visited
+                if not (son[0].getPacmanPosition(), son[0].getFood()) in visited:
                     next_call = self.get_path(son[0], visited)
                     if len(next_call) == 0:
-                        i+=1
+                        i+=1 # No solution from there
                         continue
                     break
-                i+=1
+                i+=1 # Already visited (avoid cycles)
                 
-            #print(len(next_call), i)
             if i == len(successors): # No sons converge to solution
                 return dict()
             
