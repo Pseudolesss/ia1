@@ -11,7 +11,7 @@ class PacmanAgent(Agent):
         ----------
         - `args`: Namespace of arguments from command-line prompt.
         """
-        self.visited = dict()
+        self.computed = dict()
         self.args = args
 
     def get_action(self, state):
@@ -27,13 +27,13 @@ class PacmanAgent(Agent):
         """
         key = ( state.getPacmanPosition(), state.getFood() ) #key for dict
         
-        visited = self.visited.get(key, False)
+        computed = self.computed.get(key, False)
         
-        if visited:
-            return visited #return already compute result
+        if computed:
+            return computed #return already compute result
         else:
             path = self.get_path(state, [])
-            self.visited.update(path)
+            self.computed.update(path)
             return path.get(key) #value associated to key (position, food) 
     
     def get_path(self, state, visited):
@@ -49,13 +49,12 @@ class PacmanAgent(Agent):
         """
         visited.append((state.getPacmanPosition(), state.getFood()))
         if state.isWin():
-            return { ( state.getPacmanPosition(), state.getFood() ) : dir.STOP}  
+            return { ( state.getPacmanPosition(), state.getFood() ) : dir.STOP} 
         else:
             path = dict()
             next_call = dict()
             successors = state.generatePacmanSuccessors()
             
-            key = (state.getPacmanPosition(), state.getFood())
             i=0
             for son in successors:
                 if not (son[0].getPacmanPosition(), son[0].getFood()) in visited:
@@ -69,6 +68,7 @@ class PacmanAgent(Agent):
             if i == len(successors): # No sons converge to solution
                 return dict()
             
+            key = (state.getPacmanPosition(), state.getFood())
             path.update({key : son[1]}) # Add of the {state : action} of the current call 
             path.update(next_call) # Add result of the selected son
             return path
