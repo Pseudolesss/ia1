@@ -65,10 +65,11 @@ class PacmanAgent(Agent):
                 return visited
             
             else:
-                successors = state.generatePacmanSuccessors()
                 
                 if key in self.visited: # If actual state already visited
                     continue # Ignore this node
+                
+                successors = state.generatePacmanSuccessors()
                 
                 self.visited.add(key)
                 
