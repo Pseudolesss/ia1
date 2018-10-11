@@ -88,30 +88,3 @@ class PacmanAgent(Agent):
                     visited_aux[key] = son[1] # Add the action of the current state
                     new_cost = cost//1 + 1 + i # self.branch_cost(son_key[0], son_key[1])
                     heappush( queue, (new_cost, ( son[0], visited_aux)) )
-    
-    
-    def branch_cost(self, pos, foods):
-        """
-        Given a pacman position and a food matrix, returns the shortest
-        distance to a dot.
-        Arguments:
-        ----------
-        - `pos`: Pacman position as a pair (x,y) x,y >= 0
-        - `food`: matrix of booleans indicating by True values the presence 
-        of a dot in the maze.
-        Return:
-        -------
-        - A integer representing the shortest distance to a dot
-        """
-        foods_pos = []
-        i=0 # x values
-        for rows in foods:
-            j=0 # y values
-            for elem in rows:
-                if elem:
-                    foods_pos.append((i,j))
-                j+=1
-            i+=1
-
-        distances = list( map( lambda x : abs(pos[0] - x[0]) + abs(pos[1] - x[1]) ,foods_pos) )
-        return min(distances)
