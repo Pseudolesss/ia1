@@ -14,7 +14,6 @@ class PacmanAgent(Agent):
         """
         self.computed = dict() # Dict to store computed actions {(s.PacmanPos, s.food) : action}
         self.visited = set() # Set to store the visited nodes
-        self.queue = queue.Queue() # FIFO queue
         self.args = args
 
     def get_action(self, state):
@@ -36,15 +35,15 @@ class PacmanAgent(Agent):
             return computed #return already computed result
         else:
             self.visited.clear() # Clear set if previously used
-            self.queue = queue.Queue() # Brand new queue
             
-            self.queue.put( ( state, {} ) )
-            path = self.get_path()
+            q = queue.Queue() # FIFO queue
+            q.put( ( state, {} ) ) # Initial state of the queue
+            path = self.get_path(q)
             
             self.computed.update(path) # Keep computed answers
             return path.get(key) #value associated to key (position, food)
 
-    def get_path(self):
+    def get_path(self, q):
         """
         Given a pacman game state, returns a legal move.
         Arguments:
@@ -56,7 +55,7 @@ class PacmanAgent(Agent):
         - A legal move as defined in `game.Directions`.
         """
         while True:
-            pair = self.queue.get() # Pop out the first element of the FIFO self.queue
+            pair = q.get() # Pop out the first element of the FIFO self.queue
             state = pair[0] # Consider the state linked to the first element
             visited = pair[1] # Path to the state as dict {key : actions}
             key = (state.getPacmanPosition(), state.getFood()) # for dict and set
@@ -79,4 +78,4 @@ class PacmanAgent(Agent):
                         continue # Next son
                     visited_aux = visited.copy() # Buffer to avoid losing original dict data may be long to copy after the 1st son
                     visited_aux[key] = son[1] # Add the action of the current state
-                    self.queue.put((son[0], visited_aux))
+                    q.put((son[0], visited_aux))
