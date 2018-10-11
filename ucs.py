@@ -2,24 +2,7 @@
 
 from pacman_module.game import Agent
 from pacman_module.pacman import Directions as dir
-import queue
-import inspect
-
-# To avoid conflict with entries with the same priority integer
-class PriorityEntry(object):
-
-    def __init__(self, priority, data):
-        self.data = data
-        self.priority = priority
-
-    def __lt__(self, other):
-        return self.priority < other.priority
-    
-    def priority(self):
-        return self.priority
-    
-    def data(self):
-        return self.data
+from heapq import heappush, heappop
 
 class PacmanAgent(Agent):
     def __init__(self, args):
@@ -49,8 +32,8 @@ class PacmanAgent(Agent):
         if computed:
             return computed #return already computed result
         else:
-            q = queue.PriorityQueue()
-            q.put( (0, 0, (state, {}) ) ) # ( (state, accumulated cost), path)
+            q = []
+            heappush(q, (0, (state, {})) )
             path = self.get_path(q)
             self.computed.update(path)
             return path.get(key) #value associated to key (position, food)
@@ -66,28 +49,27 @@ class PacmanAgent(Agent):
         -------
         - A legal move as defined in `game.Directions`.
         """
+        i = 0 # Implicit value to avoid identical priority in the priority queue
+        
         while True:
-            i = 0 # Implicit value to avoid identical priority in the priority queue
-            entry = list_visited.get() # Pop out the priority element of the priority queue
-            print(entry)
-            state = entry[2][0] # Consider the state linked to the first element
+            entry = heappop(list_visited) # Pop out the priority element of the priority queue
+            state = entry[1][0] # Consider the state linked to the first element
             cost = entry[0] # Accumulated cost for this state
-            visited = entry[2][1] # Path to the state as dict {key : actions}
+            visited = entry[1][1] # Path to the state as dict {key : actions}
             key = (state.getPacmanPosition(), state.getFood()) # for dict
+
+            successors = state.generatePacmanSuccessors()
             
-            if state.isWin():
-                visited[key] = dir.STOP # add {(s.Pacman pos , s.food) : action} to the returned dict
-                return visited
-            
-            else:
-                successors = state.generatePacmanSuccessors()
-                
-                for son in successors:
-                    i+=1
-                    visited_aux = visited.copy() # Buffer to avoid losing original dict data after the 1st son
-                    visited_aux[key] = son[1] # Add the action of the current state
-                    new_cost = cost + self.branch_cost(son[0].getPacmanPosition(), son[0].getFood())
-                    list_visited.put( (new_cost, i, ( son[0], visited_aux)) )
+            for son in successors:
+                if son[0].isWin():
+                    visited[key] = son[1] # add {(s.Pacman pos , s.food) : action} of the current node to the returned dict
+                    visited[(son[0].getPacmanPosition(), son[0].getFood())] = dir.STOP # of the final node
+                    return visited
+                i+=10**-12
+                visited_aux = visited.copy() # Buffer to avoid losing original dict data after the 1st son
+                visited_aux[key] = son[1] # Add the action of the current state
+                new_cost = cost//1 + self.branch_cost(son[0].getPacmanPosition(), son[0].getFood()) + i
+                heappush( list_visited, (new_cost, ( son[0], visited_aux)) )
     
     
     def branch_cost(self, pos, foods):
