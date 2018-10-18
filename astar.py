@@ -14,7 +14,7 @@ class PacmanAgent(Agent):
         self.computed = dict() # Dict to store computed actions {(s.PacmanPos, s.food) : action}
         self.visited = set() # Set to store the visited nodes
         self.args = args
-
+        
     def get_action(self, state):
         """
         Given a pacman game state, returns a legal move.
@@ -36,7 +36,7 @@ class PacmanAgent(Agent):
             self.visited.clear() # Clear set if previously used
             
             q = []
-            heappush(q,(0, (state, {})) ) # Initial state of the priority queue
+            heappush(q,(0, (state, {}, 0)) ) # Initial state of the priority queue
             path = self.get_path(q)
             
             self.computed.update(path) # Keep computed answers
@@ -58,7 +58,7 @@ class PacmanAgent(Agent):
         while True:
             entry = heappop(queue) # Pop out the priority element of the priority queue
             state = entry[1][0] # Consider the state linked to the first element
-            cost = entry[0] # Accumulated cost for this state
+            cost = entry[1][2] # Accumulated cost for this state
             visited = entry[1][1] # Path to the state as dict {key : actions}
             key = (state.getPacmanPosition(), state.getFood()) # for dict
 
@@ -86,8 +86,8 @@ class PacmanAgent(Agent):
                     i+=10**-12
                     visited_aux = visited.copy() # Buffer to avoid losing original dict data after the 1st son
                     visited_aux[key] = son[1] # Add the action of the current state
-                    new_cost = cost//1 + 1 + i + self.estimated_cost(son_key[0], son_key[1])
-                    heappush( queue, (new_cost, ( son[0], visited_aux)) )
+                    new_priority = cost + 1 + i + self.estimated_cost(son_key[0], son_key[1])
+                    heappush( queue, (new_priority, ( son[0], visited_aux, cost + 1)) )
     
     
     def estimated_cost(self, pos, foods):
