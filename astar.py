@@ -45,11 +45,16 @@ class PacmanAgent(Agent):
         Given a pacman game state, returns a legal move.
         Arguments:
         ----------
-        - `state`: the current game state.
+        - 'queue' : A low Priority queue which stores 
+        (float, (state, {(Pacman pos, Food pos): action})) elements. 
         
         Return:
         -------
-        - A legal move as defined in `game.Directions`.
+        - A dictionary with pairs (Pacman pos, food pos) as keys and actions as
+        values.
+        
+        Each key originates from a state that is part of the UCS path solution
+        starting from the argument state.
         """
         i = 0 # Implicit value to avoid identical priority in the priority queue
         
@@ -57,23 +62,28 @@ class PacmanAgent(Agent):
             entry = heappop(queue) # Pop out the priority element of the
                                    # priority queue
             state = entry[1][0] # Consider the state linked to the first element
-            cost = entry[1][2] # Accumulated cost for this state
             visited = entry[1][1] # Path to the state as dict {keys : actions}
+            cost = entry[1][2] # Accumulated cost for this state
             key = (state.getPacmanPosition(), state.getFood()) # For dict
 
             if state.isWin():
                 visited[key] = dir.STOP
                 return visited
+           
             else:
+           
                 if key in self.visited: # If actual state already visited
                     continue # Ignore this node
+           
                 self.visited.add(key)
                 successors = state.generatePacmanSuccessors()
                 
                 for son in successors:
                     son_key = (son[0].getPacmanPosition(), son[0].getFood())
+           
                     if son_key in self.visited: # If son visited
                         continue # Next son
+           
                     if son[0].isWin():
                         visited[key] = son[1] # Add {(s.Pacman pos , s.food) :
                                               # action} of the current node to
@@ -82,7 +92,8 @@ class PacmanAgent(Agent):
                                  son[0].getFood())] = dir.STOP # Direction of
                                                                # the final node
                         return visited
-                    i+=10**-12
+                
+                    i += 10**-12 # Increment by epsilon
                     visited_aux = visited.copy() # Buffer to avoid losing
                                                  # original dict data after the
                                                  # first son
@@ -109,14 +120,14 @@ class PacmanAgent(Agent):
         - A integer representing the longest distance to a dot
         """
         foods_pos = []
-        i = 0 # x values
+        i = 0 # abscisses values
         for rows in foods:
-            j = 0 # y values
+            j = 0 # ordinates values
             for elem in rows:
                 if elem:
                     foods_pos.append((i,j))
-                j+=1
-            i+=1
+                j += 1
+            i += 1
 
         distances = list(map(lambda x : abs(pos[0] - x[0]) + abs(pos[1] - x[1]),
                              foods_pos))

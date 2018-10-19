@@ -34,9 +34,7 @@ class PacmanAgent(Agent):
             return path.get(key) # Value associated to key (position, food) 
     
     def get_path(self, state, visited):
-        """
-        Given a pacman game state, returns a dictionary.
-        
+        """        
         Arguments:
         ----------
         - `state`: the current game state.
@@ -57,16 +55,19 @@ class PacmanAgent(Agent):
             path = dict()
             next_call = dict()
             successors = state.generatePacmanSuccessors()
-            i=0
+            i = 0 # Nb of sons rejected
             
             for son in successors:
                 if not (son[0].getPacmanPosition(), son[0].getFood()) in visited:
                     next_call = self.get_path(son[0], visited)
-                    if len(next_call) == 0:
-                        i+=1 # No solution from there
+                    
+                    if len(next_call) == 0: # If return empty solution
+                        i += 1 # No solution possible when adding son
                         continue
+
                     break
-                i+=1 # Already visited (avoids cycles)
+
+                i += 1 # Already visited (avoids cycles)
                 
             if i == len(successors): # No son converges to solution
                 return dict()
