@@ -38,6 +38,7 @@ class PacmanAgent(Agent):
         Arguments:
         ----------
         - `state`: the current game state.
+        - `visited`: list of (Pacman pos, Food pos) from visited state.
         
         Return:
         -------
