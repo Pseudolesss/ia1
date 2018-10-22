@@ -48,10 +48,12 @@ class PacmanAgent(Agent):
         Each key originates from a state that is part of the DFS path solution
         starting from the argument state.
         """
-        visited.append((state.getPacmanPosition(), state.getFood()))
+        key = (state.getPacmanPosition(), state.getFood())
+
+        visited.append(key)
         
         if state.isWin():
-            return {(state.getPacmanPosition(), state.getFood()) : dir.STOP} 
+            return {key : dir.STOP} 
         else:
             path = dict()
             next_call = dict()
@@ -73,7 +75,6 @@ class PacmanAgent(Agent):
             if i == len(successors): # No son converges to solution
                 return dict()
             
-            key = (state.getPacmanPosition(), state.getFood())
             path.update({key : son[1]}) # Addition of the {state : action} of
                                         # the current call 
             path.update(next_call) # Add result of the selected son
